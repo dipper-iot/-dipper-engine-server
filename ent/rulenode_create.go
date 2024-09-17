@@ -41,23 +41,15 @@ func (rnc *RuleNodeCreate) SetNodeID(s string) *RuleNodeCreate {
 	return rnc
 }
 
+// SetRuleID sets the "rule_id" field.
+func (rnc *RuleNodeCreate) SetRuleID(s string) *RuleNodeCreate {
+	rnc.mutation.SetRuleID(s)
+	return rnc
+}
+
 // SetOption sets the "option" field.
 func (rnc *RuleNodeCreate) SetOption(m map[string]interface{}) *RuleNodeCreate {
 	rnc.mutation.SetOption(m)
-	return rnc
-}
-
-// SetInfinite sets the "infinite" field.
-func (rnc *RuleNodeCreate) SetInfinite(b bool) *RuleNodeCreate {
-	rnc.mutation.SetInfinite(b)
-	return rnc
-}
-
-// SetNillableInfinite sets the "infinite" field if the given value is not nil.
-func (rnc *RuleNodeCreate) SetNillableInfinite(b *bool) *RuleNodeCreate {
-	if b != nil {
-		rnc.SetInfinite(*b)
-	}
 	return rnc
 }
 
@@ -209,10 +201,6 @@ func (rnc *RuleNodeCreate) defaults() {
 		v := rulenode.DefaultOption
 		rnc.mutation.SetOption(v)
 	}
-	if _, ok := rnc.mutation.Infinite(); !ok {
-		v := rulenode.DefaultInfinite
-		rnc.mutation.SetInfinite(v)
-	}
 	if _, ok := rnc.mutation.Debug(); !ok {
 		v := rulenode.DefaultDebug
 		rnc.mutation.SetDebug(v)
@@ -241,11 +229,16 @@ func (rnc *RuleNodeCreate) check() error {
 			return &ValidationError{Name: "node_id", err: fmt.Errorf(`ent: validator failed for field "RuleNode.node_id": %w`, err)}
 		}
 	}
+	if _, ok := rnc.mutation.RuleID(); !ok {
+		return &ValidationError{Name: "rule_id", err: errors.New(`ent: missing required field "RuleNode.rule_id"`)}
+	}
+	if v, ok := rnc.mutation.RuleID(); ok {
+		if err := rulenode.RuleIDValidator(v); err != nil {
+			return &ValidationError{Name: "rule_id", err: fmt.Errorf(`ent: validator failed for field "RuleNode.rule_id": %w`, err)}
+		}
+	}
 	if _, ok := rnc.mutation.Option(); !ok {
 		return &ValidationError{Name: "option", err: errors.New(`ent: missing required field "RuleNode.option"`)}
-	}
-	if _, ok := rnc.mutation.Infinite(); !ok {
-		return &ValidationError{Name: "infinite", err: errors.New(`ent: missing required field "RuleNode.infinite"`)}
 	}
 	if _, ok := rnc.mutation.Debug(); !ok {
 		return &ValidationError{Name: "debug", err: errors.New(`ent: missing required field "RuleNode.debug"`)}
@@ -300,6 +293,14 @@ func (rnc *RuleNodeCreate) createSpec() (*RuleNode, *sqlgraph.CreateSpec) {
 		})
 		_node.NodeID = value
 	}
+	if value, ok := rnc.mutation.RuleID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rulenode.FieldRuleID,
+		})
+		_node.RuleID = value
+	}
 	if value, ok := rnc.mutation.Option(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
@@ -307,14 +308,6 @@ func (rnc *RuleNodeCreate) createSpec() (*RuleNode, *sqlgraph.CreateSpec) {
 			Column: rulenode.FieldOption,
 		})
 		_node.Option = value
-	}
-	if value, ok := rnc.mutation.Infinite(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: rulenode.FieldInfinite,
-		})
-		_node.Infinite = value
 	}
 	if value, ok := rnc.mutation.Debug(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

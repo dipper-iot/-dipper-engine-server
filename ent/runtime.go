@@ -57,16 +57,12 @@ func init() {
 			return nil
 		}
 	}()
-	// rulechanDescInfinite is the schema descriptor for infinite field.
-	rulechanDescInfinite := rulechanFields[4].Descriptor()
-	// rulechan.DefaultInfinite holds the default value on creation for the infinite field.
-	rulechan.DefaultInfinite = rulechanDescInfinite.Default.(bool)
 	// rulechanDescCreatedAt is the schema descriptor for created_at field.
-	rulechanDescCreatedAt := rulechanFields[6].Descriptor()
+	rulechanDescCreatedAt := rulechanFields[5].Descriptor()
 	// rulechan.DefaultCreatedAt holds the default value on creation for the created_at field.
 	rulechan.DefaultCreatedAt = rulechanDescCreatedAt.Default.(func() time.Time)
 	// rulechanDescUpdatedAt is the schema descriptor for updated_at field.
-	rulechanDescUpdatedAt := rulechanFields[7].Descriptor()
+	rulechanDescUpdatedAt := rulechanFields[6].Descriptor()
 	// rulechan.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	rulechan.DefaultUpdatedAt = rulechanDescUpdatedAt.Default.(func() time.Time)
 	rulenodeFields := schema.RuleNode{}.Fields()
@@ -89,14 +85,28 @@ func init() {
 			return nil
 		}
 	}()
+	// rulenodeDescRuleID is the schema descriptor for rule_id field.
+	rulenodeDescRuleID := rulenodeFields[3].Descriptor()
+	// rulenode.RuleIDValidator is a validator for the "rule_id" field. It is called by the builders before save.
+	rulenode.RuleIDValidator = func() func(string) error {
+		validators := rulenodeDescRuleID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(rule_id string) error {
+			for _, fn := range fns {
+				if err := fn(rule_id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// rulenodeDescOption is the schema descriptor for option field.
-	rulenodeDescOption := rulenodeFields[3].Descriptor()
+	rulenodeDescOption := rulenodeFields[4].Descriptor()
 	// rulenode.DefaultOption holds the default value on creation for the option field.
 	rulenode.DefaultOption = rulenodeDescOption.Default.(map[string]interface{})
-	// rulenodeDescInfinite is the schema descriptor for infinite field.
-	rulenodeDescInfinite := rulenodeFields[4].Descriptor()
-	// rulenode.DefaultInfinite holds the default value on creation for the infinite field.
-	rulenode.DefaultInfinite = rulenodeDescInfinite.Default.(bool)
 	// rulenodeDescDebug is the schema descriptor for debug field.
 	rulenodeDescDebug := rulenodeFields[5].Descriptor()
 	// rulenode.DefaultDebug holds the default value on creation for the debug field.
@@ -115,24 +125,36 @@ func init() {
 	rulenode.DefaultUpdatedAt = rulenodeDescUpdatedAt.Default.(func() time.Time)
 	sessionFields := schema.Session{}.Fields()
 	_ = sessionFields
+	// sessionDescIsTest is the schema descriptor for is_test field.
+	sessionDescIsTest := sessionFields[2].Descriptor()
+	// session.DefaultIsTest holds the default value on creation for the is_test field.
+	session.DefaultIsTest = sessionDescIsTest.Default.(bool)
 	// sessionDescInfinite is the schema descriptor for infinite field.
-	sessionDescInfinite := sessionFields[2].Descriptor()
+	sessionDescInfinite := sessionFields[3].Descriptor()
 	// session.DefaultInfinite holds the default value on creation for the infinite field.
 	session.DefaultInfinite = sessionDescInfinite.Default.(bool)
 	// sessionDescData is the schema descriptor for data field.
-	sessionDescData := sessionFields[3].Descriptor()
+	sessionDescData := sessionFields[4].Descriptor()
 	// session.DefaultData holds the default value on creation for the data field.
 	session.DefaultData = sessionDescData.Default.(map[string]interface{})
 	// sessionDescResult is the schema descriptor for result field.
-	sessionDescResult := sessionFields[4].Descriptor()
+	sessionDescResult := sessionFields[5].Descriptor()
 	// session.DefaultResult holds the default value on creation for the result field.
 	session.DefaultResult = sessionDescResult.Default.(map[string]interface{})
+	// sessionDescEndCount is the schema descriptor for end_count field.
+	sessionDescEndCount := sessionFields[6].Descriptor()
+	// session.DefaultEndCount holds the default value on creation for the end_count field.
+	session.DefaultEndCount = sessionDescEndCount.Default.(int)
+	// sessionDescTimeout is the schema descriptor for timeout field.
+	sessionDescTimeout := sessionFields[7].Descriptor()
+	// session.DefaultTimeout holds the default value on creation for the timeout field.
+	session.DefaultTimeout = sessionDescTimeout.Default.(int)
 	// sessionDescCreatedAt is the schema descriptor for created_at field.
-	sessionDescCreatedAt := sessionFields[5].Descriptor()
+	sessionDescCreatedAt := sessionFields[8].Descriptor()
 	// session.DefaultCreatedAt holds the default value on creation for the created_at field.
 	session.DefaultCreatedAt = sessionDescCreatedAt.Default.(func() time.Time)
 	// sessionDescUpdatedAt is the schema descriptor for updated_at field.
-	sessionDescUpdatedAt := sessionFields[6].Descriptor()
+	sessionDescUpdatedAt := sessionFields[9].Descriptor()
 	// session.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	session.DefaultUpdatedAt = sessionDescUpdatedAt.Default.(func() time.Time)
 }

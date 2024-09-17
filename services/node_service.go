@@ -38,11 +38,10 @@ func (n NodeServiceImpl) createNode(chanId uint64, node *models.Node) (create *e
 	create.SetID(id)
 	create.SetChainID(chanId)
 	create.SetNodeID(node.NodeID)
-	create.SetInfinite(node.Infinite)
+	create.SetRuleID(node.RuleID)
 	create.SetDebug(node.Debug)
 	create.SetEnd(node.End)
 	create.SetOption(node.Option)
-	create.SetInfinite(node.Infinite)
 
 	return create, nil
 }
@@ -51,6 +50,7 @@ func (n NodeServiceImpl) UpdateAll(ctx context.Context, chanId uint64, list []*m
 	var (
 		count int
 	)
+
 	count, err = n.clientWrite.RuleNode.Query().Where(rulenode.ChainID(chanId)).Count(ctx)
 	if err != nil {
 		return
@@ -104,13 +104,12 @@ func (n NodeServiceImpl) UpdateAll(ctx context.Context, chanId uint64, list []*m
 			if exits {
 				// update
 				q := n.clientWrite.RuleNode.Update()
-				q.SetInfinite(node.Infinite)
 				q.SetDebug(node.Debug)
 				q.SetEnd(node.End)
 				q.SetOption(node.Option)
-				q.SetInfinite(node.Infinite)
+				q.SetRuleID(node.RuleID)
 
-				err = q.Exec(ctx)
+				err = q.Where(rulenode.ChainID(chanId)).Where(rulenode.NodeID(node.NodeID)).Exec(ctx)
 				if err != nil {
 					return err
 				}
@@ -155,6 +154,10 @@ func (n NodeServiceImpl) UpdateAll(ctx context.Context, chanId uint64, list []*m
 		return tx.Commit()
 	}
 
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -180,17 +183,19 @@ func (n NodeServiceImpl) Update(ctx context.Context, chanId uint64, data *models
 	}
 
 	q := n.clientWrite.RuleNode.Update()
-	q.SetInfinite(data.Infinite)
 	q.SetDebug(data.Debug)
 	q.SetEnd(data.End)
 	q.SetOption(data.Option)
-	q.SetInfinite(data.Infinite)
+	q.SetRuleID(data.RuleID)
 
-	err = q.Exec(ctx)
+	err = q.Where(rulenode.ChainID(chanId)).Where(rulenode.NodeID(data.NodeID)).Exec(ctx)
 	if err != nil {
 		return
 	}
 
+	if err != nil {
+		return
+	}
 	return
 }
 

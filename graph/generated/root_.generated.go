@@ -34,6 +34,8 @@ type ResolverRoot interface {
 	Chan() ChanResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	SessionInfo() SessionInfoResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -44,11 +46,17 @@ type ComplexityRoot struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Infinite    func(childComplexity int) int
 		Name        func(childComplexity int) int
+		Nodes       func(childComplexity int) int
 		RootNode    func(childComplexity int) int
 		Status      func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
+	}
+
+	ErrorEngine struct {
+		Code        func(childComplexity int) int
+		ErrorDetail func(childComplexity int) int
+		Message     func(childComplexity int) int
 	}
 
 	ListChan struct {
@@ -56,19 +64,64 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	ListSessionInfo struct {
+		Sessions func(childComplexity int) int
+		Total    func(childComplexity int) int
+	}
+
 	Mutation struct {
+		AddSession         func(childComplexity int, input model.SessionRequest) int
 		CreateChan         func(childComplexity int, input model.InputChan) int
 		DeleteChan         func(childComplexity int, id uint64) int
+		DeleteNode         func(childComplexity int, id uint64) int
+		StopSession        func(childComplexity int, id uint64) int
 		UpdateChan         func(childComplexity int, id uint64, input model.InputChan) int
+		UpdateNode         func(childComplexity int, chanID uint64, input model.InputNode) int
+		UpdateNodes        func(childComplexity int, chanID uint64, input []*model.InputNode) int
 		UpdateRootNodeChan func(childComplexity int, id uint64, rootNode string) int
 		UpdateStatusChan   func(childComplexity int, input model.SetStatusChan) int
 		Version            func(childComplexity int) int
 	}
 
+	Node struct {
+		ChainID   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		Debug     func(childComplexity int) int
+		End       func(childComplexity int) int
+		ID        func(childComplexity int) int
+		NodeID    func(childComplexity int) int
+		Option    func(childComplexity int) int
+		RuleID    func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+	}
+
 	Query struct {
-		GetChan  func(childComplexity int, id uint64) int
-		ListChan func(childComplexity int, input models.ListChanRequest) int
-		Version  func(childComplexity int) int
+		GetChan     func(childComplexity int, id uint64) int
+		GetNode     func(childComplexity int, id uint64) int
+		GetSession  func(childComplexity int, id uint64) int
+		ListChan    func(childComplexity int, input models.ListChanRequest) int
+		ListSession func(childComplexity int, input model.SessionListRequest) int
+		Version     func(childComplexity int) int
+	}
+
+	SessionInfo struct {
+		Chan     func(childComplexity int) int
+		ChanID   func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Infinity func(childComplexity int) int
+	}
+
+	SessionOutput struct {
+		ChanID     func(childComplexity int) int
+		Data       func(childComplexity int) int
+		Error      func(childComplexity int) int
+		FormEngine func(childComplexity int) int
+		SessionID  func(childComplexity int) int
+		Type       func(childComplexity int) int
+	}
+
+	Subscription struct {
+		Debug func(childComplexity int, input *model.DebugFilter) int
 	}
 
 	Version struct {
@@ -112,19 +165,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Chan.ID(childComplexity), true
 
-	case "Chan.infinite":
-		if e.complexity.Chan.Infinite == nil {
-			break
-		}
-
-		return e.complexity.Chan.Infinite(childComplexity), true
-
 	case "Chan.name":
 		if e.complexity.Chan.Name == nil {
 			break
 		}
 
 		return e.complexity.Chan.Name(childComplexity), true
+
+	case "Chan.nodes":
+		if e.complexity.Chan.Nodes == nil {
+			break
+		}
+
+		return e.complexity.Chan.Nodes(childComplexity), true
 
 	case "Chan.root_node":
 		if e.complexity.Chan.RootNode == nil {
@@ -147,6 +200,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Chan.UpdatedAt(childComplexity), true
 
+	case "ErrorEngine.code":
+		if e.complexity.ErrorEngine.Code == nil {
+			break
+		}
+
+		return e.complexity.ErrorEngine.Code(childComplexity), true
+
+	case "ErrorEngine.error_detail":
+		if e.complexity.ErrorEngine.ErrorDetail == nil {
+			break
+		}
+
+		return e.complexity.ErrorEngine.ErrorDetail(childComplexity), true
+
+	case "ErrorEngine.message":
+		if e.complexity.ErrorEngine.Message == nil {
+			break
+		}
+
+		return e.complexity.ErrorEngine.Message(childComplexity), true
+
 	case "ListChan.list":
 		if e.complexity.ListChan.List == nil {
 			break
@@ -160,6 +234,32 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ListChan.Total(childComplexity), true
+
+	case "ListSessionInfo.sessions":
+		if e.complexity.ListSessionInfo.Sessions == nil {
+			break
+		}
+
+		return e.complexity.ListSessionInfo.Sessions(childComplexity), true
+
+	case "ListSessionInfo.total":
+		if e.complexity.ListSessionInfo.Total == nil {
+			break
+		}
+
+		return e.complexity.ListSessionInfo.Total(childComplexity), true
+
+	case "Mutation.AddSession":
+		if e.complexity.Mutation.AddSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_AddSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddSession(childComplexity, args["input"].(model.SessionRequest)), true
 
 	case "Mutation.CreateChan":
 		if e.complexity.Mutation.CreateChan == nil {
@@ -185,6 +285,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteChan(childComplexity, args["id"].(uint64)), true
 
+	case "Mutation.DeleteNode":
+		if e.complexity.Mutation.DeleteNode == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_DeleteNode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteNode(childComplexity, args["id"].(uint64)), true
+
+	case "Mutation.StopSession":
+		if e.complexity.Mutation.StopSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_StopSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.StopSession(childComplexity, args["id"].(uint64)), true
+
 	case "Mutation.UpdateChan":
 		if e.complexity.Mutation.UpdateChan == nil {
 			break
@@ -196,6 +320,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateChan(childComplexity, args["id"].(uint64), args["input"].(model.InputChan)), true
+
+	case "Mutation.UpdateNode":
+		if e.complexity.Mutation.UpdateNode == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateNode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateNode(childComplexity, args["chanId"].(uint64), args["input"].(model.InputNode)), true
+
+	case "Mutation.UpdateNodes":
+		if e.complexity.Mutation.UpdateNodes == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateNodes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateNodes(childComplexity, args["chanId"].(uint64), args["input"].([]*model.InputNode)), true
 
 	case "Mutation.UpdateRootNodeChan":
 		if e.complexity.Mutation.UpdateRootNodeChan == nil {
@@ -228,6 +376,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Version(childComplexity), true
 
+	case "Node.chain_id":
+		if e.complexity.Node.ChainID == nil {
+			break
+		}
+
+		return e.complexity.Node.ChainID(childComplexity), true
+
+	case "Node.created_at":
+		if e.complexity.Node.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Node.CreatedAt(childComplexity), true
+
+	case "Node.debug":
+		if e.complexity.Node.Debug == nil {
+			break
+		}
+
+		return e.complexity.Node.Debug(childComplexity), true
+
+	case "Node.end":
+		if e.complexity.Node.End == nil {
+			break
+		}
+
+		return e.complexity.Node.End(childComplexity), true
+
+	case "Node.id":
+		if e.complexity.Node.ID == nil {
+			break
+		}
+
+		return e.complexity.Node.ID(childComplexity), true
+
+	case "Node.node_id":
+		if e.complexity.Node.NodeID == nil {
+			break
+		}
+
+		return e.complexity.Node.NodeID(childComplexity), true
+
+	case "Node.option":
+		if e.complexity.Node.Option == nil {
+			break
+		}
+
+		return e.complexity.Node.Option(childComplexity), true
+
+	case "Node.rule_id":
+		if e.complexity.Node.RuleID == nil {
+			break
+		}
+
+		return e.complexity.Node.RuleID(childComplexity), true
+
+	case "Node.updated_at":
+		if e.complexity.Node.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Node.UpdatedAt(childComplexity), true
+
 	case "Query.GetChan":
 		if e.complexity.Query.GetChan == nil {
 			break
@@ -239,6 +450,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetChan(childComplexity, args["id"].(uint64)), true
+
+	case "Query.GetNode":
+		if e.complexity.Query.GetNode == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetNode_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetNode(childComplexity, args["id"].(uint64)), true
+
+	case "Query.GetSession":
+		if e.complexity.Query.GetSession == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetSession(childComplexity, args["id"].(uint64)), true
 
 	case "Query.ListChan":
 		if e.complexity.Query.ListChan == nil {
@@ -252,12 +487,106 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ListChan(childComplexity, args["input"].(models.ListChanRequest)), true
 
+	case "Query.ListSession":
+		if e.complexity.Query.ListSession == nil {
+			break
+		}
+
+		args, err := ec.field_Query_ListSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ListSession(childComplexity, args["input"].(model.SessionListRequest)), true
+
 	case "Query.version":
 		if e.complexity.Query.Version == nil {
 			break
 		}
 
 		return e.complexity.Query.Version(childComplexity), true
+
+	case "SessionInfo.chan":
+		if e.complexity.SessionInfo.Chan == nil {
+			break
+		}
+
+		return e.complexity.SessionInfo.Chan(childComplexity), true
+
+	case "SessionInfo.chan_id":
+		if e.complexity.SessionInfo.ChanID == nil {
+			break
+		}
+
+		return e.complexity.SessionInfo.ChanID(childComplexity), true
+
+	case "SessionInfo.id":
+		if e.complexity.SessionInfo.ID == nil {
+			break
+		}
+
+		return e.complexity.SessionInfo.ID(childComplexity), true
+
+	case "SessionInfo.infinity":
+		if e.complexity.SessionInfo.Infinity == nil {
+			break
+		}
+
+		return e.complexity.SessionInfo.Infinity(childComplexity), true
+
+	case "SessionOutput.chan_id":
+		if e.complexity.SessionOutput.ChanID == nil {
+			break
+		}
+
+		return e.complexity.SessionOutput.ChanID(childComplexity), true
+
+	case "SessionOutput.data":
+		if e.complexity.SessionOutput.Data == nil {
+			break
+		}
+
+		return e.complexity.SessionOutput.Data(childComplexity), true
+
+	case "SessionOutput.error":
+		if e.complexity.SessionOutput.Error == nil {
+			break
+		}
+
+		return e.complexity.SessionOutput.Error(childComplexity), true
+
+	case "SessionOutput.form_engine":
+		if e.complexity.SessionOutput.FormEngine == nil {
+			break
+		}
+
+		return e.complexity.SessionOutput.FormEngine(childComplexity), true
+
+	case "SessionOutput.session_id":
+		if e.complexity.SessionOutput.SessionID == nil {
+			break
+		}
+
+		return e.complexity.SessionOutput.SessionID(childComplexity), true
+
+	case "SessionOutput.type":
+		if e.complexity.SessionOutput.Type == nil {
+			break
+		}
+
+		return e.complexity.SessionOutput.Type(childComplexity), true
+
+	case "Subscription.Debug":
+		if e.complexity.Subscription.Debug == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_Debug_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.Debug(childComplexity, args["input"].(*model.DebugFilter)), true
 
 	case "Version.version":
 		if e.complexity.Version.Version == nil {
@@ -274,8 +603,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputDebugFilter,
 		ec.unmarshalInputInputChan,
+		ec.unmarshalInputInputNode,
 		ec.unmarshalInputListChanRequest,
+		ec.unmarshalInputSessionListRequest,
+		ec.unmarshalInputSessionRequest,
 		ec.unmarshalInputSetStatusChan,
 	)
 	first := true
@@ -305,6 +638,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -342,7 +692,10 @@ var sources = []*ast.Source{
 # https://gqlgen.com/getting-started/
 
 scalar Uint64
+scalar Timestamp
 scalar Map
+scalar Time
+scalar Any
 
 type Version {
     version: String!
@@ -373,10 +726,10 @@ type Mutation {
     name: String!
     description: String
     root_node: String
-    infinite: Boolean
+    nodes: [Node!]
     status: ChanStatus
-    created_at: String
-    updated_at: String
+    created_at: Time
+    updated_at: Time
 }
 
 enum ChanStatus {
@@ -400,8 +753,95 @@ input InputChan {
 }
 
 input SetStatusChan {
-    id: ID!
-    status: ChanStatus
+    id: Uint64!
+    status: ChanStatus!
+}`, BuiltIn: false},
+	{Name: "../schema/node/node.mutation.graphql", Input: `extend type Mutation {
+    UpdateNode(chanId: Uint64!, input: InputNode!): Boolean!
+    UpdateNodes(chanId: Uint64!, input: [InputNode!]): Boolean!
+    DeleteNode(id: Uint64!): Boolean!
+}`, BuiltIn: false},
+	{Name: "../schema/node/node.query.graphql", Input: `extend type Query {
+    GetNode(id: Uint64!): Node!
+}`, BuiltIn: false},
+	{Name: "../schema/node/node.type.graphql", Input: `type Node {
+    id : Uint64!
+    node_id: String!
+    chain_id: Uint64!
+    rule_id: String!
+    option: Map
+    debug: Boolean!
+    end: Boolean!
+    created_at: Time
+    updated_at: Time
+}
+
+input InputNode {
+    node_id: String!
+    rule_id: String!
+    option: Map
+    debug: Boolean
+    end: Boolean
+}`, BuiltIn: false},
+	{Name: "../schema/session/session.mutation.graphql", Input: `extend type Mutation {
+	AddSession(input: SessionRequest!): Boolean!
+	StopSession(id: Uint64!): Boolean!
+}`, BuiltIn: false},
+	{Name: "../schema/session/session.query.graphql", Input: `extend type Query {
+	ListSession(input: SessionListRequest!): ListSessionInfo!
+	GetSession(id: Uint64!): SessionInfo!
+}`, BuiltIn: false},
+	{Name: "../schema/session/session.subscription.graphql", Input: `type Subscription {
+    Debug(input: DebugFilter): [SessionOutput!]
+}
+
+`, BuiltIn: false},
+	{Name: "../schema/session/session.type.graphql", Input: `type SessionInfo {
+    id: Uint64!
+    chan_id: Uint64!
+    infinity: Boolean!
+    chan: Chan
+}
+
+
+type ListSessionInfo {
+    total: Int!
+    sessions: [SessionInfo]
+}
+input SessionListRequest {
+    infinity: Boolean!
+    skip: Int!
+    limit: Int!
+}
+
+type SessionOutput {
+    chan_id: Uint64!
+    session_id: Uint64!
+    form_engine: String!
+    data: Map!
+    type: OutputType!
+    error: ErrorEngine
+}
+
+type ErrorEngine {
+    message:     String
+    error_detail: String
+    code   : Int
+}
+
+enum OutputType {
+    Success
+    Error
+}
+
+input DebugFilter {
+    chan_id: String
+}
+
+input SessionRequest {
+    chan_id: String!
+    is_test: Boolean!
+    data: Map
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)

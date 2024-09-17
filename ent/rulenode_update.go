@@ -55,23 +55,15 @@ func (rnu *RuleNodeUpdate) SetNodeID(s string) *RuleNodeUpdate {
 	return rnu
 }
 
+// SetRuleID sets the "rule_id" field.
+func (rnu *RuleNodeUpdate) SetRuleID(s string) *RuleNodeUpdate {
+	rnu.mutation.SetRuleID(s)
+	return rnu
+}
+
 // SetOption sets the "option" field.
 func (rnu *RuleNodeUpdate) SetOption(m map[string]interface{}) *RuleNodeUpdate {
 	rnu.mutation.SetOption(m)
-	return rnu
-}
-
-// SetInfinite sets the "infinite" field.
-func (rnu *RuleNodeUpdate) SetInfinite(b bool) *RuleNodeUpdate {
-	rnu.mutation.SetInfinite(b)
-	return rnu
-}
-
-// SetNillableInfinite sets the "infinite" field if the given value is not nil.
-func (rnu *RuleNodeUpdate) SetNillableInfinite(b *bool) *RuleNodeUpdate {
-	if b != nil {
-		rnu.SetInfinite(*b)
-	}
 	return rnu
 }
 
@@ -214,6 +206,11 @@ func (rnu *RuleNodeUpdate) check() error {
 			return &ValidationError{Name: "node_id", err: fmt.Errorf(`ent: validator failed for field "RuleNode.node_id": %w`, err)}
 		}
 	}
+	if v, ok := rnu.mutation.RuleID(); ok {
+		if err := rulenode.RuleIDValidator(v); err != nil {
+			return &ValidationError{Name: "rule_id", err: fmt.Errorf(`ent: validator failed for field "RuleNode.rule_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -242,18 +239,18 @@ func (rnu *RuleNodeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: rulenode.FieldNodeID,
 		})
 	}
+	if value, ok := rnu.mutation.RuleID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rulenode.FieldRuleID,
+		})
+	}
 	if value, ok := rnu.mutation.Option(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
 			Value:  value,
 			Column: rulenode.FieldOption,
-		})
-	}
-	if value, ok := rnu.mutation.Infinite(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: rulenode.FieldInfinite,
 		})
 	}
 	if value, ok := rnu.mutation.Debug(); ok {
@@ -364,23 +361,15 @@ func (rnuo *RuleNodeUpdateOne) SetNodeID(s string) *RuleNodeUpdateOne {
 	return rnuo
 }
 
+// SetRuleID sets the "rule_id" field.
+func (rnuo *RuleNodeUpdateOne) SetRuleID(s string) *RuleNodeUpdateOne {
+	rnuo.mutation.SetRuleID(s)
+	return rnuo
+}
+
 // SetOption sets the "option" field.
 func (rnuo *RuleNodeUpdateOne) SetOption(m map[string]interface{}) *RuleNodeUpdateOne {
 	rnuo.mutation.SetOption(m)
-	return rnuo
-}
-
-// SetInfinite sets the "infinite" field.
-func (rnuo *RuleNodeUpdateOne) SetInfinite(b bool) *RuleNodeUpdateOne {
-	rnuo.mutation.SetInfinite(b)
-	return rnuo
-}
-
-// SetNillableInfinite sets the "infinite" field if the given value is not nil.
-func (rnuo *RuleNodeUpdateOne) SetNillableInfinite(b *bool) *RuleNodeUpdateOne {
-	if b != nil {
-		rnuo.SetInfinite(*b)
-	}
 	return rnuo
 }
 
@@ -536,6 +525,11 @@ func (rnuo *RuleNodeUpdateOne) check() error {
 			return &ValidationError{Name: "node_id", err: fmt.Errorf(`ent: validator failed for field "RuleNode.node_id": %w`, err)}
 		}
 	}
+	if v, ok := rnuo.mutation.RuleID(); ok {
+		if err := rulenode.RuleIDValidator(v); err != nil {
+			return &ValidationError{Name: "rule_id", err: fmt.Errorf(`ent: validator failed for field "RuleNode.rule_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -581,18 +575,18 @@ func (rnuo *RuleNodeUpdateOne) sqlSave(ctx context.Context) (_node *RuleNode, er
 			Column: rulenode.FieldNodeID,
 		})
 	}
+	if value, ok := rnuo.mutation.RuleID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rulenode.FieldRuleID,
+		})
+	}
 	if value, ok := rnuo.mutation.Option(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
 			Value:  value,
 			Column: rulenode.FieldOption,
-		})
-	}
-	if value, ok := rnuo.mutation.Infinite(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: rulenode.FieldInfinite,
 		})
 	}
 	if value, ok := rnuo.mutation.Debug(); ok {

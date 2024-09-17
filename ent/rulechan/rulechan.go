@@ -18,8 +18,6 @@ const (
 	FieldDescription = "description"
 	// FieldRootNode holds the string denoting the root_node field in the database.
 	FieldRootNode = "root_node"
-	// FieldInfinite holds the string denoting the infinite field in the database.
-	FieldInfinite = "infinite"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -54,7 +52,6 @@ var Columns = []string{
 	FieldName,
 	FieldDescription,
 	FieldRootNode,
-	FieldInfinite,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -77,8 +74,6 @@ var (
 	DescriptionValidator func(string) error
 	// RootNodeValidator is a validator for the "root_node" field. It is called by the builders before save.
 	RootNodeValidator func(string) error
-	// DefaultInfinite holds the default value on creation for the "infinite" field.
-	DefaultInfinite bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -90,7 +85,8 @@ type Status string
 
 // Status values.
 const (
-	StatusActivated Status = "deactivated"
+	StatusActivated   Status = "activated"
+	StatusDeactivated Status = "deactivated"
 )
 
 func (s Status) String() string {
@@ -100,7 +96,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusActivated:
+	case StatusActivated, StatusDeactivated:
 		return nil
 	default:
 		return fmt.Errorf("rulechan: invalid enum value for status field: %q", s)

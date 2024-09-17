@@ -74,3 +74,11 @@ models:
   Chan:
     model:
       - github.com/dipper-iot/dipper-engine-server/ent.RuleChan
+
+  Node:
+    model:
+      - github.com/dipper-iot/dipper-engine-server/ent.RuleNode
+
+  SessionInfo:
+    model:
+      - github.com/dipper-iot/dipper-engine-server/ent.Session

@@ -40,7 +40,6 @@ type RuleChanMutation struct {
 	name            *string
 	description     *string
 	root_node       *string
-	infinite        *bool
 	status          *rulechan.Status
 	created_at      *time.Time
 	updated_at      *time.Time
@@ -266,42 +265,6 @@ func (m *RuleChanMutation) OldRootNode(ctx context.Context) (v string, err error
 // ResetRootNode resets all changes to the "root_node" field.
 func (m *RuleChanMutation) ResetRootNode() {
 	m.root_node = nil
-}
-
-// SetInfinite sets the "infinite" field.
-func (m *RuleChanMutation) SetInfinite(b bool) {
-	m.infinite = &b
-}
-
-// Infinite returns the value of the "infinite" field in the mutation.
-func (m *RuleChanMutation) Infinite() (r bool, exists bool) {
-	v := m.infinite
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldInfinite returns the old "infinite" field's value of the RuleChan entity.
-// If the RuleChan object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RuleChanMutation) OldInfinite(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldInfinite is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldInfinite requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldInfinite: %w", err)
-	}
-	return oldValue.Infinite, nil
-}
-
-// ResetInfinite resets all changes to the "infinite" field.
-func (m *RuleChanMutation) ResetInfinite() {
-	m.infinite = nil
 }
 
 // SetStatus sets the "status" field.
@@ -539,7 +502,7 @@ func (m *RuleChanMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RuleChanMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, rulechan.FieldName)
 	}
@@ -548,9 +511,6 @@ func (m *RuleChanMutation) Fields() []string {
 	}
 	if m.root_node != nil {
 		fields = append(fields, rulechan.FieldRootNode)
-	}
-	if m.infinite != nil {
-		fields = append(fields, rulechan.FieldInfinite)
 	}
 	if m.status != nil {
 		fields = append(fields, rulechan.FieldStatus)
@@ -575,8 +535,6 @@ func (m *RuleChanMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case rulechan.FieldRootNode:
 		return m.RootNode()
-	case rulechan.FieldInfinite:
-		return m.Infinite()
 	case rulechan.FieldStatus:
 		return m.Status()
 	case rulechan.FieldCreatedAt:
@@ -598,8 +556,6 @@ func (m *RuleChanMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldDescription(ctx)
 	case rulechan.FieldRootNode:
 		return m.OldRootNode(ctx)
-	case rulechan.FieldInfinite:
-		return m.OldInfinite(ctx)
 	case rulechan.FieldStatus:
 		return m.OldStatus(ctx)
 	case rulechan.FieldCreatedAt:
@@ -635,13 +591,6 @@ func (m *RuleChanMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRootNode(v)
-		return nil
-	case rulechan.FieldInfinite:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetInfinite(v)
 		return nil
 	case rulechan.FieldStatus:
 		v, ok := value.(rulechan.Status)
@@ -721,9 +670,6 @@ func (m *RuleChanMutation) ResetField(name string) error {
 		return nil
 	case rulechan.FieldRootNode:
 		m.ResetRootNode()
-		return nil
-	case rulechan.FieldInfinite:
-		m.ResetInfinite()
 		return nil
 	case rulechan.FieldStatus:
 		m.ResetStatus()
@@ -855,8 +801,8 @@ type RuleNodeMutation struct {
 	typ           string
 	id            *uint64
 	node_id       *string
+	rule_id       *string
 	option        *map[string]interface{}
-	infinite      *bool
 	debug         *bool
 	end           *bool
 	created_at    *time.Time
@@ -1058,6 +1004,42 @@ func (m *RuleNodeMutation) ResetNodeID() {
 	m.node_id = nil
 }
 
+// SetRuleID sets the "rule_id" field.
+func (m *RuleNodeMutation) SetRuleID(s string) {
+	m.rule_id = &s
+}
+
+// RuleID returns the value of the "rule_id" field in the mutation.
+func (m *RuleNodeMutation) RuleID() (r string, exists bool) {
+	v := m.rule_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRuleID returns the old "rule_id" field's value of the RuleNode entity.
+// If the RuleNode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RuleNodeMutation) OldRuleID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRuleID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRuleID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRuleID: %w", err)
+	}
+	return oldValue.RuleID, nil
+}
+
+// ResetRuleID resets all changes to the "rule_id" field.
+func (m *RuleNodeMutation) ResetRuleID() {
+	m.rule_id = nil
+}
+
 // SetOption sets the "option" field.
 func (m *RuleNodeMutation) SetOption(value map[string]interface{}) {
 	m.option = &value
@@ -1092,42 +1074,6 @@ func (m *RuleNodeMutation) OldOption(ctx context.Context) (v map[string]interfac
 // ResetOption resets all changes to the "option" field.
 func (m *RuleNodeMutation) ResetOption() {
 	m.option = nil
-}
-
-// SetInfinite sets the "infinite" field.
-func (m *RuleNodeMutation) SetInfinite(b bool) {
-	m.infinite = &b
-}
-
-// Infinite returns the value of the "infinite" field in the mutation.
-func (m *RuleNodeMutation) Infinite() (r bool, exists bool) {
-	v := m.infinite
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldInfinite returns the old "infinite" field's value of the RuleNode entity.
-// If the RuleNode object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RuleNodeMutation) OldInfinite(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldInfinite is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldInfinite requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldInfinite: %w", err)
-	}
-	return oldValue.Infinite, nil
-}
-
-// ResetInfinite resets all changes to the "infinite" field.
-func (m *RuleNodeMutation) ResetInfinite() {
-	m.infinite = nil
 }
 
 // SetDebug sets the "debug" field.
@@ -1326,11 +1272,11 @@ func (m *RuleNodeMutation) Fields() []string {
 	if m.node_id != nil {
 		fields = append(fields, rulenode.FieldNodeID)
 	}
+	if m.rule_id != nil {
+		fields = append(fields, rulenode.FieldRuleID)
+	}
 	if m.option != nil {
 		fields = append(fields, rulenode.FieldOption)
-	}
-	if m.infinite != nil {
-		fields = append(fields, rulenode.FieldInfinite)
 	}
 	if m.debug != nil {
 		fields = append(fields, rulenode.FieldDebug)
@@ -1356,10 +1302,10 @@ func (m *RuleNodeMutation) Field(name string) (ent.Value, bool) {
 		return m.ChainID()
 	case rulenode.FieldNodeID:
 		return m.NodeID()
+	case rulenode.FieldRuleID:
+		return m.RuleID()
 	case rulenode.FieldOption:
 		return m.Option()
-	case rulenode.FieldInfinite:
-		return m.Infinite()
 	case rulenode.FieldDebug:
 		return m.Debug()
 	case rulenode.FieldEnd:
@@ -1381,10 +1327,10 @@ func (m *RuleNodeMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldChainID(ctx)
 	case rulenode.FieldNodeID:
 		return m.OldNodeID(ctx)
+	case rulenode.FieldRuleID:
+		return m.OldRuleID(ctx)
 	case rulenode.FieldOption:
 		return m.OldOption(ctx)
-	case rulenode.FieldInfinite:
-		return m.OldInfinite(ctx)
 	case rulenode.FieldDebug:
 		return m.OldDebug(ctx)
 	case rulenode.FieldEnd:
@@ -1416,19 +1362,19 @@ func (m *RuleNodeMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetNodeID(v)
 		return nil
+	case rulenode.FieldRuleID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRuleID(v)
+		return nil
 	case rulenode.FieldOption:
 		v, ok := value.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOption(v)
-		return nil
-	case rulenode.FieldInfinite:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetInfinite(v)
 		return nil
 	case rulenode.FieldDebug:
 		v, ok := value.(bool)
@@ -1525,11 +1471,11 @@ func (m *RuleNodeMutation) ResetField(name string) error {
 	case rulenode.FieldNodeID:
 		m.ResetNodeID()
 		return nil
+	case rulenode.FieldRuleID:
+		m.ResetRuleID()
+		return nil
 	case rulenode.FieldOption:
 		m.ResetOption()
-		return nil
-	case rulenode.FieldInfinite:
-		m.ResetInfinite()
 		return nil
 	case rulenode.FieldDebug:
 		m.ResetDebug()
@@ -1627,9 +1573,14 @@ type SessionMutation struct {
 	op            Op
 	typ           string
 	id            *uint64
+	is_test       *bool
 	infinite      *bool
 	data          *map[string]interface{}
 	result        *map[string]interface{}
+	end_count     *int
+	addend_count  *int
+	timeout       *int
+	addtimeout    *int
 	created_at    *time.Time
 	updated_at    *time.Time
 	clearedFields map[string]struct{}
@@ -1793,6 +1744,42 @@ func (m *SessionMutation) ResetChainID() {
 	delete(m.clearedFields, session.FieldChainID)
 }
 
+// SetIsTest sets the "is_test" field.
+func (m *SessionMutation) SetIsTest(b bool) {
+	m.is_test = &b
+}
+
+// IsTest returns the value of the "is_test" field in the mutation.
+func (m *SessionMutation) IsTest() (r bool, exists bool) {
+	v := m.is_test
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsTest returns the old "is_test" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldIsTest(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsTest is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsTest requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsTest: %w", err)
+	}
+	return oldValue.IsTest, nil
+}
+
+// ResetIsTest resets all changes to the "is_test" field.
+func (m *SessionMutation) ResetIsTest() {
+	m.is_test = nil
+}
+
 // SetInfinite sets the "infinite" field.
 func (m *SessionMutation) SetInfinite(b bool) {
 	m.infinite = &b
@@ -1899,6 +1886,118 @@ func (m *SessionMutation) OldResult(ctx context.Context) (v map[string]interface
 // ResetResult resets all changes to the "result" field.
 func (m *SessionMutation) ResetResult() {
 	m.result = nil
+}
+
+// SetEndCount sets the "end_count" field.
+func (m *SessionMutation) SetEndCount(i int) {
+	m.end_count = &i
+	m.addend_count = nil
+}
+
+// EndCount returns the value of the "end_count" field in the mutation.
+func (m *SessionMutation) EndCount() (r int, exists bool) {
+	v := m.end_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEndCount returns the old "end_count" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldEndCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEndCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEndCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEndCount: %w", err)
+	}
+	return oldValue.EndCount, nil
+}
+
+// AddEndCount adds i to the "end_count" field.
+func (m *SessionMutation) AddEndCount(i int) {
+	if m.addend_count != nil {
+		*m.addend_count += i
+	} else {
+		m.addend_count = &i
+	}
+}
+
+// AddedEndCount returns the value that was added to the "end_count" field in this mutation.
+func (m *SessionMutation) AddedEndCount() (r int, exists bool) {
+	v := m.addend_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetEndCount resets all changes to the "end_count" field.
+func (m *SessionMutation) ResetEndCount() {
+	m.end_count = nil
+	m.addend_count = nil
+}
+
+// SetTimeout sets the "timeout" field.
+func (m *SessionMutation) SetTimeout(i int) {
+	m.timeout = &i
+	m.addtimeout = nil
+}
+
+// Timeout returns the value of the "timeout" field in the mutation.
+func (m *SessionMutation) Timeout() (r int, exists bool) {
+	v := m.timeout
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTimeout returns the old "timeout" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldTimeout(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTimeout is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTimeout requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimeout: %w", err)
+	}
+	return oldValue.Timeout, nil
+}
+
+// AddTimeout adds i to the "timeout" field.
+func (m *SessionMutation) AddTimeout(i int) {
+	if m.addtimeout != nil {
+		*m.addtimeout += i
+	} else {
+		m.addtimeout = &i
+	}
+}
+
+// AddedTimeout returns the value that was added to the "timeout" field in this mutation.
+func (m *SessionMutation) AddedTimeout() (r int, exists bool) {
+	v := m.addtimeout
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTimeout resets all changes to the "timeout" field.
+func (m *SessionMutation) ResetTimeout() {
+	m.timeout = nil
+	m.addtimeout = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -2018,9 +2117,12 @@ func (m *SessionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SessionMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 9)
 	if m.chain != nil {
 		fields = append(fields, session.FieldChainID)
+	}
+	if m.is_test != nil {
+		fields = append(fields, session.FieldIsTest)
 	}
 	if m.infinite != nil {
 		fields = append(fields, session.FieldInfinite)
@@ -2030,6 +2132,12 @@ func (m *SessionMutation) Fields() []string {
 	}
 	if m.result != nil {
 		fields = append(fields, session.FieldResult)
+	}
+	if m.end_count != nil {
+		fields = append(fields, session.FieldEndCount)
+	}
+	if m.timeout != nil {
+		fields = append(fields, session.FieldTimeout)
 	}
 	if m.created_at != nil {
 		fields = append(fields, session.FieldCreatedAt)
@@ -2047,12 +2155,18 @@ func (m *SessionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case session.FieldChainID:
 		return m.ChainID()
+	case session.FieldIsTest:
+		return m.IsTest()
 	case session.FieldInfinite:
 		return m.Infinite()
 	case session.FieldData:
 		return m.Data()
 	case session.FieldResult:
 		return m.Result()
+	case session.FieldEndCount:
+		return m.EndCount()
+	case session.FieldTimeout:
+		return m.Timeout()
 	case session.FieldCreatedAt:
 		return m.CreatedAt()
 	case session.FieldUpdatedAt:
@@ -2068,12 +2182,18 @@ func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case session.FieldChainID:
 		return m.OldChainID(ctx)
+	case session.FieldIsTest:
+		return m.OldIsTest(ctx)
 	case session.FieldInfinite:
 		return m.OldInfinite(ctx)
 	case session.FieldData:
 		return m.OldData(ctx)
 	case session.FieldResult:
 		return m.OldResult(ctx)
+	case session.FieldEndCount:
+		return m.OldEndCount(ctx)
+	case session.FieldTimeout:
+		return m.OldTimeout(ctx)
 	case session.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case session.FieldUpdatedAt:
@@ -2093,6 +2213,13 @@ func (m *SessionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetChainID(v)
+		return nil
+	case session.FieldIsTest:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsTest(v)
 		return nil
 	case session.FieldInfinite:
 		v, ok := value.(bool)
@@ -2114,6 +2241,20 @@ func (m *SessionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetResult(v)
+		return nil
+	case session.FieldEndCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEndCount(v)
+		return nil
+	case session.FieldTimeout:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimeout(v)
 		return nil
 	case session.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -2137,6 +2278,12 @@ func (m *SessionMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *SessionMutation) AddedFields() []string {
 	var fields []string
+	if m.addend_count != nil {
+		fields = append(fields, session.FieldEndCount)
+	}
+	if m.addtimeout != nil {
+		fields = append(fields, session.FieldTimeout)
+	}
 	return fields
 }
 
@@ -2145,6 +2292,10 @@ func (m *SessionMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *SessionMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case session.FieldEndCount:
+		return m.AddedEndCount()
+	case session.FieldTimeout:
+		return m.AddedTimeout()
 	}
 	return nil, false
 }
@@ -2154,6 +2305,20 @@ func (m *SessionMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *SessionMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case session.FieldEndCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddEndCount(v)
+		return nil
+	case session.FieldTimeout:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTimeout(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Session numeric field %s", name)
 }
@@ -2193,6 +2358,9 @@ func (m *SessionMutation) ResetField(name string) error {
 	case session.FieldChainID:
 		m.ResetChainID()
 		return nil
+	case session.FieldIsTest:
+		m.ResetIsTest()
+		return nil
 	case session.FieldInfinite:
 		m.ResetInfinite()
 		return nil
@@ -2201,6 +2369,12 @@ func (m *SessionMutation) ResetField(name string) error {
 		return nil
 	case session.FieldResult:
 		m.ResetResult()
+		return nil
+	case session.FieldEndCount:
+		m.ResetEndCount()
+		return nil
+	case session.FieldTimeout:
+		m.ResetTimeout()
 		return nil
 	case session.FieldCreatedAt:
 		m.ResetCreatedAt()

@@ -3,10 +3,10 @@ type Chan {
     name: String!
     description: String
     root_node: String
-    infinite: Boolean
+    nodes: [Node!]
     status: ChanStatus
-    created_at: String
-    updated_at: String
+    created_at: Time
+    updated_at: Time
 }
 
 enum ChanStatus {
@@ -30,6 +30,6 @@ input InputChan {
 }
 
 input SetStatusChan {
-    id: ID!
-    status: ChanStatus
+    id: Uint64!
+    status: ChanStatus!
 }
